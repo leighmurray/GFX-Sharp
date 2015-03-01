@@ -86,11 +86,8 @@ byte sharpmem_buffer[(SHARPMEM_LCDWIDTH * SHARPMEM_LCDHEIGHT) / 8];
 /* ************* */
 /* CONSTRUCTORS  */
 /* ************* */
-Adafruit_SharpMem::Adafruit_SharpMem(uint8_t clk, uint8_t mosi, uint8_t ss) :
+Adafruit_SharpMem::Adafruit_SharpMem() :
 Adafruit_GFX(SHARPMEM_LCDWIDTH, SHARPMEM_LCDHEIGHT) {
-  _clk = clk;
-  _mosi = mosi;
-  _ss = ss;
 
   // Set the vcom bit to a defined state
   _sharpmem_vcom = SHARPMEM_BIT_VCOM;
@@ -119,14 +116,11 @@ void Adafruit_SharpMem::parse_opts(int argc, char *argv[])
 			{ "3wire",   0, 0, '3' },
 			{ "no-cs",   0, 0, 'N' },
 			{ "ready",   0, 0, 'R' },
-			{ "dual",    0, 0, '2' },
-			{ "verbose", 0, 0, 'v' },
-			{ "quad",    0, 0, '4' },
 			{ NULL, 0, 0, 0 },
 		};
 		int c;
 
-		c = getopt_long(argc, argv, "D:s:d:b:lHOLC3NR24p:v", lopts, NULL);
+		c = getopt_long(argc, argv, "D:s:d:b:lHOLC3NR", lopts, NULL);
 
 		if (c == -1)
 			break;
@@ -165,31 +159,13 @@ void Adafruit_SharpMem::parse_opts(int argc, char *argv[])
 		case 'N':
 			mode |= SPI_NO_CS;
 			break;
-		case 'v':
-			verbose = 1;
-			break;
 		case 'R':
 			mode |= SPI_READY;
-			break;
-		case 'p':
-			input_tx = optarg;
-			break;
-		case '2':
-			mode |= SPI_TX_DUAL;
-			break;
-		case '4':
-			mode |= SPI_TX_QUAD;
 			break;
 		default:
 			print_usage(argv[0]);
 			break;
 		}
-	}
-	if (mode & SPI_LOOP) {
-		if (mode & SPI_TX_DUAL)
-			mode |= SPI_RX_DUAL;
-		if (mode & SPI_TX_QUAD)
-			mode |= SPI_RX_QUAD;
 	}
 }
 
@@ -198,7 +174,7 @@ void Adafruit_SharpMem::begin(int argc, char *argv[]) {
 	parse_opts(argc, argv);
 
 	int ret = 0;
-	fd = open("/dev/spidev0.0", O_RDWR);
+	fd = open("/dev/spidev1.0", O_RDWR);
 	if (fd < 0){
  		printf("can't open device\n");
 		abort();
@@ -207,11 +183,11 @@ void Adafruit_SharpMem::begin(int argc, char *argv[]) {
 	/*
 	 * spi mode
 	 */
-	ret = ioctl(fd, SPI_IOC_WR_MODE32, &mode);
+	ret = ioctl(fd, SPI_IOC_WR_MODE, &mode);
 	if (ret == -1)
 		pabort("can't set spi mode");
 
-	ret = ioctl(fd, SPI_IOC_RD_MODE32, &mode);
+	ret = ioctl(fd, SPI_IOC_RD_MODE, &mode);
 	if (ret == -1)
 		pabort("can't get spi mode");
 
@@ -237,76 +213,14 @@ void Adafruit_SharpMem::begin(int argc, char *argv[]) {
 	if (ret == -1)
 		pabort("can't get max speed hz");
 
-	printf("spi mode: 0x%x\n", mode);
+	printf("spi mode: %d\n", mode);
 	printf("bits per word: %d\n", bits);
 	printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
 
 	setRotation(2);
 }
 
-/* *************** */
-/* PRIVATE METHODS */
-/* *************** */
-
-
-/**************************************************************************/
-/*!
-    @brief  Sends a single byte in pseudo-SPI.
-*/
-/**************************************************************************/
-void Adafruit_SharpMem::sendbyte(uint8_t data)
-{
-  uint8_t i = 0;
-
-  // LCD expects LSB first
-  for (i=0; i<8; i++)
-  {
-    // Make sure clock starts low
-    //digitalWrite(_clk, LOW);
-    *clkport &= ~clkpinmask;
-    if (data & 0x80)
-      //digitalWrite(_mosi, HIGH);
-      *dataport |=  datapinmask;
-    else
-      //digitalWrite(_mosi, LOW);
-      *dataport &= ~datapinmask;
-
-    // Clock is active high
-    //digitalWrite(_clk, HIGH);
-    *clkport |=  clkpinmask;
-    data <<= 1;
-  }
-  // Make sure clock ends low
-  //digitalWrite(_clk, LOW);
-  *clkport &= ~clkpinmask;
-}
-
-void Adafruit_SharpMem::sendbyteLSB(uint8_t data)
-{
-  uint8_t i = 0;
-
-  // LCD expects LSB first
-  for (i=0; i<8; i++)
-  {
-    // Make sure clock starts low
-    //digitalWrite(_clk, LOW);
-    *clkport &= ~clkpinmask;
-    if (data & 0x01)
-      //digitalWrite(_mosi, HIGH);
-      *dataport |=  datapinmask;
-    else
-      //digitalWrite(_mosi, LOW);
-      *dataport &= ~datapinmask;
-    // Clock is active high
-    //digitalWrite(_clk, HIGH);
-    *clkport |=  clkpinmask;
-    data >>= 1;
-  }
-  // Make sure clock ends low
-  //digitalWrite(_clk, LOW);
-  *clkport &= ~clkpinmask;
-}
-/* ************** */
+/******************/ 
 /* PUBLIC METHODS */
 /* ************** */
 
@@ -421,7 +335,15 @@ void Adafruit_SharpMem::refresh(void)
   byte *message = (byte *)malloc(sizeof(byte)*totalMessageLength);
   byte *cursor = message;
 
+<<<<<<< Updated upstream
   *(cursor++) |= (SHARPMEM_BIT_WRITECMD | _sharpmem_vcom);
+=======
+//  int j=0;
+//  for (j=0; j < totalMessageLength; j++)
+//  {
+//    printf("%02X:", message[j]);
+//  }
+>>>>>>> Stashed changes
 
   TOGGLE_VCOM;
 
@@ -499,30 +421,22 @@ void Adafruit_SharpMem::transfer(byte *input, int len)
 	};
 
 
-	if (mode & SPI_TX_QUAD)
-		tr.tx_nbits = 4;
-	else if (mode & SPI_TX_DUAL)
-		tr.tx_nbits = 2;
-	if (mode & SPI_RX_QUAD)
-		tr.rx_nbits = 4;
-	else if (mode & SPI_RX_DUAL)
-		tr.rx_nbits = 2;
-	if (!(mode & SPI_LOOP)) {
-		if (mode & (SPI_TX_QUAD | SPI_TX_DUAL))
-			tr.rx_buf = 0;
-		else if (mode & (SPI_RX_QUAD | SPI_RX_DUAL))
-			tr.tx_buf = 0;
-	}
-
 	ret = ioctl(fd, SPI_IOC_MESSAGE(1), &tr);
 	if (ret < 1)
 		pabort("can't send spi message");
 
+<<<<<<< Updated upstream
 	if (verbose)
 	{
 		hex_dump(input, len, 32, "TX");
 	        hex_dump(rx, len, 32, "RX");
 	}
 
+=======
+//	if (verbose)
+//		hex_dump(input, len, 32, "TX");
+	hex_dump(rx, len, 32, "RX");
+	printf("Next Line!\r\n\r\n");
+>>>>>>> Stashed changes
 }
 
