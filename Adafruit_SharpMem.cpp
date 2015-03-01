@@ -335,15 +335,7 @@ void Adafruit_SharpMem::refresh(void)
   byte *message = (byte *)malloc(sizeof(byte)*totalMessageLength);
   byte *cursor = message;
 
-<<<<<<< Updated upstream
   *(cursor++) |= (SHARPMEM_BIT_WRITECMD | _sharpmem_vcom);
-=======
-//  int j=0;
-//  for (j=0; j < totalMessageLength; j++)
-//  {
-//    printf("%02X:", message[j]);
-//  }
->>>>>>> Stashed changes
 
   TOGGLE_VCOM;
 
@@ -425,18 +417,11 @@ void Adafruit_SharpMem::transfer(byte *input, int len)
 	if (ret < 1)
 		pabort("can't send spi message");
 
-<<<<<<< Updated upstream
 	if (verbose)
 	{
 		hex_dump(input, len, 32, "TX");
 	        hex_dump(rx, len, 32, "RX");
 	}
 
-=======
-//	if (verbose)
-//		hex_dump(input, len, 32, "TX");
-	hex_dump(rx, len, 32, "RX");
-	printf("Next Line!\r\n\r\n");
->>>>>>> Stashed changes
 }
 
