@@ -33,17 +33,12 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Adafruit_GFX.h"
 #include "glcdfont.c"
-#ifdef __AVR__
- #include <avr/pgmspace.h>
-#elif defined(ESP8266)
- #include <pgmspace.h>
-#else
- #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
-#endif
 
 #ifndef min
  #define min(a,b) ((a < b) ? a : b)
 #endif
+
+#define pgm_read_byte(addr) (*(const unsigned char *)(addr))
 
 Adafruit_GFX::Adafruit_GFX(int16_t w, int16_t h):
   WIDTH(w), HEIGHT(h)
@@ -409,12 +404,8 @@ void Adafruit_GFX::drawXBitmap(int16_t x, int16_t y,
     }
   }
 }
-
-#if ARDUINO >= 100
+/*
 size_t Adafruit_GFX::write(uint8_t c) {
-#else
-void Adafruit_GFX::write(uint8_t c) {
-#endif
   if (c == '\n') {
     cursor_y += textsize*8;
     cursor_x  = 0;
@@ -428,11 +419,9 @@ void Adafruit_GFX::write(uint8_t c) {
       cursor_x = 0;
     }
   }
-#if ARDUINO >= 100
   return 1;
-#endif
 }
-
+*/
 // Draw a character
 void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
 			    uint16_t color, uint16_t bg, uint8_t size) {
@@ -595,7 +584,7 @@ void Adafruit_GFX_Button::initButton(Adafruit_GFX *gfx,
    _gfx->setCursor(_x - strlen(_label)*3*_textsize, _y-4*_textsize);
    _gfx->setTextColor(text);
    _gfx->setTextSize(_textsize);
-   _gfx->print(_label);
+   //_gfx->print(_label);
  }
 
 boolean Adafruit_GFX_Button::contains(int16_t x, int16_t y) {
