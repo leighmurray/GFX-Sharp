@@ -247,10 +247,17 @@ void testdrawline() {
 
 int main (int argc, char *argv[])
 {
-	printf("so far so good\n");
-	setup(argc, argv);
-	printf("we are setup\n");
-	display.drawPixel(10, 10, BLACK);
-	display.refresh();
-	printf("REEEFRESSSH!\n");
+  printf("so far so good\n");
+  setup(argc, argv);
+  printf("we are setup\n");
+  while(1) {
+    display.drawPixel(10, 10, BLACK);
+    display.refresh();
+    usleep(1000000);
+    display.clearDisplay();
+    display.drawPixel(1, 1, BLACK);
+    display.refresh();
+    usleep(1000000);
+    display.clearDisplay();
+  }
 }

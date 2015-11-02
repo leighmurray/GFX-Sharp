@@ -4,14 +4,14 @@ This is an Arduino library for our Monochrome SHARP Memory Displays
   Pick one up today in the adafruit shop!
   ------> http://www.adafruit.com/products/1393
 
-These displays use SPI to communicate, 3 pins are required to  
+These displays use SPI to communicate, 3 pins are required to
 interface
 
-Adafruit invests time and resources providing this open source code, 
-please support Adafruit and open-source hardware by purchasing 
+Adafruit invests time and resources providing this open source code,
+please support Adafruit and open-source hardware by purchasing
 products from Adafruit!
 
-Written by Limor Fried/Ladyada  for Adafruit Industries.  
+Written by Limor Fried/Ladyada  for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above, and the splash screen must be included in any redistribution
 *********************************************************************/
@@ -39,6 +39,13 @@ static void pabort(const char *s)
 {
 	perror(s);
 	abort();
+}
+
+static byte reverse(byte b) {
+   b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
+   b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
+   b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
+   return b;
 }
 
 static void hex_dump(const void *src, size_t length, size_t line_size, char *prefix)
@@ -91,8 +98,8 @@ Adafruit_GFX(SHARPMEM_LCDWIDTH, SHARPMEM_LCDHEIGHT) {
   mode = 0;
   bits = 8;
   speed = 500000;
-  delay = 10000;
-  verbose = 1;
+  delay = 1;
+  verbose = 0;
 
 }
 
@@ -241,13 +248,13 @@ void Adafruit_SharpMem::begin(int argc, char *argv[]) {
 /* PRIVATE METHODS */
 /* *************** */
 
- 
+
 /**************************************************************************/
 /*!
     @brief  Sends a single byte in pseudo-SPI.
 */
 /**************************************************************************/
-void Adafruit_SharpMem::sendbyte(uint8_t data) 
+void Adafruit_SharpMem::sendbyte(uint8_t data)
 {
   uint8_t i = 0;
 
@@ -405,50 +412,52 @@ void Adafruit_SharpMem::refresh(void)
   totalbytes = (SHARPMEM_LCDWIDTH * SHARPMEM_LCDHEIGHT) / 8;
 
   // One byte for the command,
-  // Two extra bytes per row for address at start and trailer at end,
-  // One extra byte at the end to end transmission.
-  uint16_t totalMessageLength = totalbytes + (SHARPMEM_LCDHEIGHT * 2) + 1;
+  // Two bytes per row for address at start and trailer at end,
+  // One byte at the end to end transmission.
+  uint32_t totalMessageLength = totalbytes + (SHARPMEM_LCDHEIGHT * 2) + 2;
 
-  byte message[totalMessageLength];
+  printf("Message:%d - Databytes:%d\n", totalMessageLength, totalbytes);
 
-  *message |= (SHARPMEM_BIT_WRITECMD | _sharpmem_vcom);
+  byte *message = (byte *)malloc(sizeof(byte)*totalMessageLength);
+  byte *cursor = message;
 
-  int j=0;
-  for (j=0; j < totalMessageLength; j++)
-  {
-    printf("%02X:", message[j]);
-  }
+  *(cursor++) |= (SHARPMEM_BIT_WRITECMD | _sharpmem_vcom);
 
-return;
-  // Send the write command
-  //digitalWrite(_ss, HIGH);
-  sendbyte(SHARPMEM_BIT_WRITECMD | _sharpmem_vcom);
   TOGGLE_VCOM;
 
   // Send the address for line 1
   oldline = currentline = 1;
-  sendbyteLSB(currentline);
+  *(cursor++) |= reverse(currentline);
 
   // Send image buffer
   for (i=0; i<totalbytes; i++)
   {
-    sendbyteLSB(sharpmem_buffer[i]);
+    *(cursor++) |= reverse(sharpmem_buffer[i]);
     currentline = ((i+1)/(SHARPMEM_LCDWIDTH/8)) + 1;
     if(currentline != oldline)
     {
       // Send end of line and address bytes
-      sendbyteLSB(0x00);
+      *(cursor++) |= reverse(0x00);
       if (currentline <= SHARPMEM_LCDHEIGHT)
       {
-        sendbyteLSB(currentline);
+        *(cursor++) |= reverse(currentline);
       }
       oldline = currentline;
     }
   }
 
   // Send another trailing 8 bits for the last line
-  sendbyteLSB(0x00);
-  //digitalWrite(_ss, LOW);
+  *(cursor++) |= reverse(0x00);
+
+  /**
+  int j=0;
+  for (j=0; j < totalMessageLength; j++)
+  {
+    printf("%02X%s", message[j], j+1 < totalMessageLength ? ":" : "\n");
+  }
+  */
+  transfer(message, totalMessageLength);
+
 }
 
 void Adafruit_SharpMem::print_usage(const char *prog)
