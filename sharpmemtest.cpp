@@ -206,48 +206,48 @@ int main (int argc, char *argv[])
 // draw a single pixel
   display.drawPixel(10, 10, BLACK);
   display.refresh();
-  delay(500);
+  sleep(1);
   display.clearDisplay();
 
   // draw many lines
   testdrawline();
-  delay(500);
+  sleep(1);
   display.clearDisplay();
 
   // draw rectangles
   testdrawrect();
-  delay(500);
+  sleep(1);
   display.clearDisplay();
 
   // draw multiple rectangles
   testfillrect();
   display.refresh();
-  delay(500);
+  sleep(1);
   display.clearDisplay();
 
   // draw a circle, 10 pixel radius
   display.fillCircle(display.width()/2, display.height()/2, 10, BLACK);
   display.refresh();
-  delay(500);
+  sleep(1);
   display.clearDisplay();
 
   testdrawroundrect();
   display.refresh();
-  delay(500);
+  sleep(1);
   display.clearDisplay();
 
   testfillroundrect();
   display.refresh();
-  delay(500);
+  sleep(1);
   display.clearDisplay();
 
   testdrawtriangle();
   display.refresh();
-  delay(500);
+  sleep(1);
   display.clearDisplay();
 
   testfilltriangle();
   display.refresh();
-  delay(500);
+  sleep(1);
   display.clearDisplay();
 }

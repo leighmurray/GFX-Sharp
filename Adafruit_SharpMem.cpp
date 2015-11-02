@@ -48,7 +48,7 @@ static byte reverse(byte b) {
    return b;
 }
 
-static void hex_dump(const void *src, size_t length, size_t line_size, char *prefix)
+static void hex_dump(const void *src, size_t length, size_t line_size, const char *prefix)
 {
 	int i = 0;
 	const unsigned char *address = (const unsigned char *)src;
@@ -97,8 +97,8 @@ Adafruit_GFX(SHARPMEM_LCDWIDTH, SHARPMEM_LCDHEIGHT) {
 
   mode = 0;
   bits = 8;
-  speed = 500000;
-  delay = 1;
+  speed = 30000;
+  delay = 0;
   verbose = 0;
 
 }
@@ -416,7 +416,7 @@ void Adafruit_SharpMem::refresh(void)
   // One byte at the end to end transmission.
   uint32_t totalMessageLength = totalbytes + (SHARPMEM_LCDHEIGHT * 2) + 2;
 
-  printf("Message:%d - Databytes:%d\n", totalMessageLength, totalbytes);
+  //printf("Message:%d - Databytes:%d\n", totalMessageLength, totalbytes);
 
   byte *message = (byte *)malloc(sizeof(byte)*totalMessageLength);
   byte *cursor = message;
@@ -518,9 +518,11 @@ void Adafruit_SharpMem::transfer(byte *input, int len)
 	if (ret < 1)
 		pabort("can't send spi message");
 
-//	if (verbose)
-//		hex_dump(input, len, 32, "TX");
-//	hex_dump(rx, len, 32, "RX");
+	if (verbose)
+	{
+		hex_dump(input, len, 32, "TX");
+	        hex_dump(rx, len, 32, "RX");
+	}
 
 }
 
