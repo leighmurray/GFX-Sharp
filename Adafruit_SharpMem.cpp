@@ -518,9 +518,9 @@ void Adafruit_SharpMem::transfer(byte *input, int len)
 	if (ret < 1)
 		pabort("can't send spi message");
 
-	if (verbose)
-		hex_dump(input, len, 32, "TX");
-	hex_dump(rx, len, 32, "RX");
+//	if (verbose)
+//		hex_dump(input, len, 32, "TX");
+//	hex_dump(rx, len, 32, "RX");
 
 }
 

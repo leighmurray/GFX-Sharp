@@ -46,54 +46,6 @@ void setup(int argc, char *argv[])
   display.clearDisplay();
 
 /*
-  // draw a single pixel
-  display.drawPixel(10, 10, BLACK);
-  display.refresh();
-  delay(500);
-  display.clearDisplay();
-
-  // draw many lines
-  testdrawline();
-  delay(500);
-  display.clearDisplay();
-
-  // draw rectangles
-  testdrawrect();
-  delay(500);
-  display.clearDisplay();
-
-  // draw multiple rectangles
-  testfillrect();
-  display.refresh();
-  delay(500);
-  display.clearDisplay();
-
-  // draw a circle, 10 pixel radius
-  display.fillCircle(display.width()/2, display.height()/2, 10, BLACK);
-  display.refresh();
-  delay(500);
-  display.clearDisplay();
-
-  testdrawroundrect();
-  display.refresh();  
-  delay(500);
-  display.clearDisplay();
-
-  testfillroundrect();
-  display.refresh();
-  delay(500);
-  display.clearDisplay();
-
-  testdrawtriangle();
-  display.refresh();
-  delay(500);
-  display.clearDisplay();
-
-  testfilltriangle();
-  display.refresh();
-  delay(500);
-  display.clearDisplay();
-
   // draw the first ~12 characters in the font
   testdrawchar();
   display.refresh();
@@ -250,14 +202,52 @@ int main (int argc, char *argv[])
   printf("so far so good\n");
   setup(argc, argv);
   printf("we are setup\n");
-  while(1) {
-    display.drawPixel(10, 10, BLACK);
-    display.refresh();
-    usleep(1000000);
-    display.clearDisplay();
-    display.drawPixel(1, 1, BLACK);
-    display.refresh();
-    usleep(1000000);
-    display.clearDisplay();
-  }
+
+// draw a single pixel
+  display.drawPixel(10, 10, BLACK);
+  display.refresh();
+  delay(500);
+  display.clearDisplay();
+
+  // draw many lines
+  testdrawline();
+  delay(500);
+  display.clearDisplay();
+
+  // draw rectangles
+  testdrawrect();
+  delay(500);
+  display.clearDisplay();
+
+  // draw multiple rectangles
+  testfillrect();
+  display.refresh();
+  delay(500);
+  display.clearDisplay();
+
+  // draw a circle, 10 pixel radius
+  display.fillCircle(display.width()/2, display.height()/2, 10, BLACK);
+  display.refresh();
+  delay(500);
+  display.clearDisplay();
+
+  testdrawroundrect();
+  display.refresh();
+  delay(500);
+  display.clearDisplay();
+
+  testfillroundrect();
+  display.refresh();
+  delay(500);
+  display.clearDisplay();
+
+  testdrawtriangle();
+  display.refresh();
+  delay(500);
+  display.clearDisplay();
+
+  testfilltriangle();
+  display.refresh();
+  delay(500);
+  display.clearDisplay();
 }
